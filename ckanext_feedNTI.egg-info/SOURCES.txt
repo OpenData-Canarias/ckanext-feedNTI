@@ -1,0 +1,11 @@
+setup.py
+ckanext/__init__.py
+ckanext/feedNTI/__init__.py
+ckanext/feedNTI/plugin.py
+ckanext_feedNTI.egg-info/PKG-INFO
+ckanext_feedNTI.egg-info/SOURCES.txt
+ckanext_feedNTI.egg-info/dependency_links.txt
+ckanext_feedNTI.egg-info/entry_points.txt
+ckanext_feedNTI.egg-info/namespace_packages.txt
+ckanext_feedNTI.egg-info/not-zip-safe
+ckanext_feedNTI.egg-info/top_level.txt

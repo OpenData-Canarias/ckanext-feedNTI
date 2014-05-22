@@ -10,29 +10,37 @@ from webhelpers.util import SimplerXMLGenerator
 
 from ckan.common import c,g, response
 
-from feedNTI import FeedNTI
+from ckanext.feedNTI.FeedAtomNTI import FeedAtomNTI
 
-"""
-Realiza la consulta a la API para recuperar todos los datasets del catalogo
-Retorna la cantidad de datasets y los metadatos de cada uno
-"""
+# Se encarga de gestionar todo el proceso para generar el feed.
+# Desde recoger los datos, crear la estructura del feed hasta devolver
+# la respuesta en formatao Atom. 
+
+#Realiza la consulta a la API paa recuperar todos los datasets del catalogo
+#Retorna la cantidad de datasets y los metadatos de cada uno
 def _package_search():
 
 	context = {'model': model, 'session': model.Session,
 				'user': c.user or c.author, 'auth_user_obj': c.userobj }
-    
+	
 	# Ordenar los resultados por fecha de modificacion
 	data_dict = {} 
 	data_dict['sort'] = 'metadata_modified desc'
+	data_dict['rows'] = '50'	# Se limitan los resultados a 50, ojo con esto
 
 	# Realizar la consulta
 	query = logic.get_action('package_search')(context, data_dict.copy())
-    
+	
 	return query['count'], query['results']
 
 # Se encarga de gestionar el proceso para generar el feed.
-# Coge los datos del catalogo y se los pasas al NTIAtom1Feed para que genere el feed
-class FeedNTIController(base.BaseController):
+# Coge los datos del catalogo y se los pasa al NTIAtom1Feed para que genere el feed
+#
+# El controllador esd el que entiende como funciona ckan, debe mandarle al NTI1Atom1Feed
+# los campos bien formateados.
+class FeedAtomNTIController(base.BaseController):
+	# Metodo principal
+	# Genera el feed completo del catalogo
 	def getCatalog(self):
 		item_count, datasets = _package_search()
 		
@@ -52,8 +60,10 @@ class FeedNTIController(base.BaseController):
 			'terminosUso': config.get('ckan.feedNTI.terminosUso','')
 		}
 		
+		# Genera el feed
 		return self.output_feed(datasets,feedData)
-    
+
+	# Se encarga de general la respuesta para el feed.
 	def output_feed(self, datasets, feedData={}):
 		# Cabeceras del feed, metadatos del catalogo
 		feed = _NTIAtom1Feed(
@@ -73,21 +83,24 @@ class FeedNTIController(base.BaseController):
 		# metadatos de los datasets
 		for pkg in datasets:
 			# Categoria / Grupo principal
+			# Solo se obtiene la primera cateogria (grupo)
 			group = ''
-			groupA = pkg.get('groups',None)
-			if groupA is not None:
-				group = groupA[0]['display_name']
+			groupArray = pkg.get('groups',None)
+			if (groupArray is not None)	and (len(groupArray) > 0):
+				group = groupArray[0]['display_name']
 				
 			# Tag / Etiqueta principal
+			# Solo se muestra la primera etiqueta
 			tag= ''
-			tagA = pkg.get('tags',None)
-			if tagA is not None:
-				tag = tagA[0]['display_name']
+			tagArray = pkg.get('tags',None)
+			if (tagArray is not None) and (len(tagArray) > 0):
+				tag = tagArray[0]['display_name']
 				
-			# Idioma / Cobertura Geografica / Cobertura Temporal
+			# Idioma / Cobertura Geografica / Cobertura Temporal / ...
+			# Son campos definidos como extras en CKAN
 			idiomaT = ''
 			cobgeo = ''
-			cobtemp = ''
+			cobtemp = ['','']
 			vigencia = ''
 			frecupd = ''
 			recrel= ''
@@ -98,10 +111,11 @@ class FeedNTIController(base.BaseController):
 				for extra in extras:
 					if extra['key'] == 'Idioma':
 						idiomaT = extra['value']
-					elif extra['key'] == 'Cobertura geográfica':
+					elif extra['key'] == 'Cobertura Geográfica':
 						cobgeo = extra['value']
-					elif extra['key'] == 'Cobertura temporal':
-						cobtemp = extra['value']
+					elif extra['key'] == 'Cobertura Temporal':
+						cobtemp[0] = extra['value']
+						cobtemp[1] = extra['value']
 					elif extra['key'] == 'Vigencia':
 						vigencia = extra['value']
 					elif extra['key'] == 'Frecuencia Actualización':
@@ -111,7 +125,7 @@ class FeedNTIController(base.BaseController):
 					elif extra['key'] == 'Normativa':
 						norma = extra['value']
 			
-			# Publicador
+			# Organismo Publicador
 			publisher = ''
 			org = pkg.get('organization',None)
 			if org is not None:
@@ -123,18 +137,20 @@ class FeedNTIController(base.BaseController):
 			for ckanResource in ckanResources:
 				resource = {
 					'link': ckanResource['url'],
-					'formato': ckanResource['mimetype'],
+					'formato': g.site_url + '/dataset' + pkg.get('name','') + '/resource/' + ckanResource['mimetype'],
 					'identificador': ckanResource['id'],
 					'nombre': ckanResource['name'],
 					'tamano': ckanResource['size'],
-					'informacionAdiocional': g.site_url + '/dataset' + pkg.get('name','') + '/resource/' + ckanResource['id']
+					# CKAN no implementa el metadato para información adicional, se genera la url para el recurso en ckan o se deja vacio
+					'informacionAdicional': '',
+					#'informacionAdicional': g.site_url + '/dataset' + pkg.get('name','') + '/resource/' + ckanResource['id']
 				}
 				
 				resources.append(resource)
 			
 			feed.add_item(
 				nombre = pkg.get('title',''),
-				sumary = pkg.get('notes',''),
+				summary = pkg.get('notes',''),
 				id = g.site_url + "/dataset/" + pkg.get('name',''),
 				category = group,
 				keyword = tag,
@@ -155,8 +171,10 @@ class FeedNTIController(base.BaseController):
 		return feed.writeString('utf-8')
 
 # Se encarga de crear el feed Atom con los datos que se le suministran
+# Los datos suministrados deben estar bien formateados y en cadenas de caracteres.
+# Está clase se limita a construir el Feed.
 class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
-	feedNTISchema = FeedNTI()
+	feedNTISchema = FeedAtomNTI()
 	
 	def __init__(self,
 				nombre, link, descripcion, id=None, organoPublicador=None, tamanoCatalogo=None, 
@@ -165,11 +183,13 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 				
 		super(_NTIAtom1Feed,self).__init__(title=nombre, link=link, description=descripcion, categories=category, **kwargs)
 		
+		# Se añaden los campos al directorio para construir luego el XML.
 		nti = {
 			'id': id, # Nombre de campo y propiedad no definido en la NTI
 			'identificador': id,
 			'nombre': nombre,
 			'descripcion': descripcion,
+			'summary': descripcion, #Nombre de campo y propiedad no definido en la NTI
 			'organoPublicador': organoPublicador,
 			'tamanoCatalogo': tamanoCatalogo,
 			'fechaCreacion': fechaCreacion,
@@ -185,6 +205,8 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 		
 		self.feed.update(nti)
 
+	# Se encarga de añadir al array todos los atributos de la cabecerda
+	# <feed>, namespaces, etc.
 	def root_attributes(self):
 		attrs = {}
 		
@@ -207,6 +229,7 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 
 		return attrs
 		
+	# Genera las etiquetas XML para la cabecera del feed atom, a partir del array construido en el __init__
 	def add_root_elements(self, handler):
 		# Campos obligatorios (segun el constructor)
 		handler.addQuickElement(self.feedNTISchema.feed['nombre'], self.feed['nombre'])
@@ -214,11 +237,15 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 		handler.addQuickElement(self.feedNTISchema.feed['link'], "", {u"rel": u"alternate", u"href": self.feed['link']})
 		handler.addQuickElement(self.feedNTISchema.feed['paginaWeb'], self.feed['paginaWeb'])
 		
-		# Campos opcionales (constructuro =None)
+		# Campos opcionales (constructor =None)
+		# Se hace por if separados e indicando los campos para evitar generar etiquetas
+		# que no estén definidas en la plantilla Atom.
 		if self.feed['id'] is not None:
 			handler.addQuickElement(self.feedNTISchema.feed['id'], self.feed['id'])
 		if self.feed['identificador'] is not None:
 			handler.addQuickElement(self.feedNTISchema.feed['identificador'], self.feed['identificador'])
+		if self.feed['summary'] is not None:
+			handler.addQuickElement(self.feedNTISchema.feed['summary'], self.feed['summary'])			
 		if self.feed['organoPublicador'] is not None:
 			handler.addQuickElement(self.feedNTISchema.feed['organoPublicador'], self.feed['organoPublicador'])
 		if self.feed['tamanoCatalogo'] is not None:
@@ -240,8 +267,9 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 		if self.feed['terminosUso'] is not None:
 			handler.addQuickElement(self.feedNTISchema.feed['terminosUso'], self.feed['terminosUso'])
 
+	# Construye el objeto que representa una distribución para añadirlo al array del feed.
 	def add_distribution(self, link, formato, identificador=None, nombre=None, 
-							tamano=None, informacionAdiocional=None):
+							tamano=None, informacionAdicional=None):
 		ntiDistribution = {
 			'identificador': identificador,
 			'nombre': nombre,
@@ -249,23 +277,30 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 			'link': link,
 			'formato': formato,
 			'tamano': tamano,
-			'informacionAdiocional': informacionAdiocional
+			'informacionAdicional': informacionAdicional
 		}
 		
 		return ntiDistribution
 		
-	def add_item(self, nombre, sumary, id, category=None,
+	# Se encarga de añadir al array cada uno de los datasets (entry)
+	def add_item(self, nombre, summary, id, category=None,
 					keyword=None, published=None, updated=None, frecuenciaActualizacion=None,
 					idioma=None, organismoPublicador=None, condicionesUso=None,
 					coberturaGeografica=None, coberturaTemporal=None, vigenciaRecurso=None,
 					recursoRelacionado=None, normativa=None, distribucion = [], **kwargs):
 		
+		coberturaTemporalComienzo = ''
+		coberturaTemporalFinal = ''
+		if coberturaTemporal is not None:
+			coberturaTemporalComienzo = coberturaTemporal[0]
+			coberturaTemporalFinal = coberturaTemporal[1]
+		
 		ntiItem = {
 			'id' : id,
 			'identificador': id,
 			'nombre': nombre,
-			'descripcion': sumary,
-			'sumary': sumary,
+			'descripcion': summary,
+			'summary': summary,
 			'tematica': category,
 			'category': category,
 			'etiqueta': keyword,
@@ -279,7 +314,10 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 			'organismoPublicador': organismoPublicador,
 			'condicionesUso': condicionesUso,
 			'coberturaGeografica': coberturaGeografica,
-			'coberturaTemporal': coberturaTemporal,
+			'coberturaTemporal': {
+					'comienzo': coberturaTemporalComienzo,
+					'final': coberturaTemporalFinal
+				},
 			'vigenciaRecurso': vigenciaRecurso,
 			'recursoRelacionado': recursoRelacionado,
 			'normativa': normativa,
@@ -292,7 +330,7 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 			dist_identificador = ''
 			dist_nombre = ''
 			dist_tamano= ''
-			dist_informacionAdiocional = ''
+			dist_informacionAdicional = ''
 			if dist['link'] is not None:
 				dist_link = dist['link']
 			if dist['formato'] is not None:
@@ -303,32 +341,37 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 				dist_nombre = dist['nombre']
 			if dist['tamano'] is not None:
 				dist_tamano = dist['tamano']
-			if dist['informacionAdiocional'] is not None:
-				dist_informacionAdiocional = dist['informacionAdiocional']
+			if dist['informacionAdicional'] is not None:
+				dist_informacionAdicional = dist['informacionAdicional']
 			newDist = self.add_distribution(link = dist_link,
 										formato = dist_formato,
 										identificador = dist_identificador,
 										nombre = dist_nombre,
 										tamano = dist_tamano,
-										informacionAdiocional = dist_informacionAdiocional)
+										informacionAdicional = dist_informacionAdicional)
 			ntiItem['distribucion'].append(newDist)
 		
+		# Se actualiza los argumentos, el constructor se encarga de añadirlo al array
 		kwargs.update(ntiItem);	
 		
 		super(_NTIAtom1Feed, self).add_item(title=nombre,
 											link=id,
-											description=sumary,
+											description=summary,
 											**kwargs)
 	
+	# Genera las etiquetas XML para cada uno de los datasets (entry)
+	# del feed atom, a partir del array construido en el add_item
 	def add_item_elements(self, handler, item):
 		# Campos obligatorios (segun el constructor)
 		handler.addQuickElement(self.feedNTISchema.entry['id'], item['id'])
 		handler.addQuickElement(self.feedNTISchema.entry['identificador'], item['identificador'])
 		handler.addQuickElement(self.feedNTISchema.entry['nombre'], item['nombre'])
 		handler.addQuickElement(self.feedNTISchema.entry['descripcion'], item['descripcion'])
-		handler.addQuickElement(self.feedNTISchema.entry['sumary'], item['sumary'])
+		handler.addQuickElement(self.feedNTISchema.entry['summary'], item['summary'])
 
-		# Campos opcionales (constructuro =None)
+		# Campos opcionales (constructor =None)
+		# Se hace por if separados e indicando los campos para evitar generar etiquetas
+		# que no estén definidas en la plantilla Atom.
 		if item['tematica'] is not None:
 			handler.addQuickElement(self.feedNTISchema.entry['tematica'], item['tematica'])
 		if item['category'] is not None:
@@ -356,7 +399,23 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 		if item['coberturaGeografica'] is not None:
 			handler.addQuickElement(self.feedNTISchema.entry['coberturaGeografica'], item['coberturaGeografica'])	
 		if item['coberturaTemporal'] is not None:
-			handler.addQuickElement(self.feedNTISchema.entry['coberturaTemporal'], item['coberturaTemporal'])	
+			handler.startElement(self.feedNTISchema.entry['coberturaTemporal']['etiqueta'], {})
+			handler.startElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['etiqueta'], {})
+			if item['coberturaTemporal']['comienzo'] is not None:
+				handler.startElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['comienzo'], {})
+				handler.startElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['instante'], {})
+				handler.addQuickElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['datetime'],item['coberturaTemporal']['comienzo'])
+				handler.endElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['instante'])
+				handler.endElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['comienzo'])
+			if item['coberturaTemporal']['final'] is not None:
+				handler.startElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['final'], {})
+				handler.startElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['instante'], {})
+				handler.addQuickElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['datetime'],item['coberturaTemporal']['final'])
+				handler.endElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['instante'])
+				handler.endElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['final'])
+			handler.endElement(self.feedNTISchema.entry['coberturaTemporal']['intervalo']['etiqueta'])
+			handler.endElement(self.feedNTISchema.entry['coberturaTemporal']['etiqueta'])
+				
 		if item['vigenciaRecurso'] is not None:
 			handler.addQuickElement(self.feedNTISchema.entry['vigenciaRecurso'], item['vigenciaRecurso'])	
 		if item['recursoRelacionado'] is not None:
@@ -373,11 +432,11 @@ class _NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 				if dist['urlAcceso'] is not None:
 					handler.addQuickElement(self.feedNTISchema.distribution['urlAcceso'], dist['urlAcceso'])
 				if dist['link'] is not None:
-					handler.addQuickElement(self.feedNTISchema.distribution['link'], dist['link'])
+					handler.addQuickElement(self.feedNTISchema.distribution['link'], "", {u"rel": u"enclosure", u"href": dist['link'], u"type": dist['formato'], u"length": dist['tamano']})
 				if dist['formato'] is not None:
 					handler.addQuickElement(self.feedNTISchema.distribution['formato'], dist['formato'])
 				if dist['tamano'] is not None:
 					handler.addQuickElement(self.feedNTISchema.distribution['tamano'], dist['tamano'])
-				if dist['informacionAdiocional'] is not None:
-					handler.addQuickElement(self.feedNTISchema.distribution['informacionAdiocional'], dist['informacionAdiocional'])
+				if dist['informacionAdicional'] is not None:
+					handler.addQuickElement(self.feedNTISchema.distribution['informacionAdicional'], dist['informacionAdicional'])
 				handler.endElement(self.feedNTISchema.entry['distribucion'])

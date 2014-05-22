@@ -1,11 +1,11 @@
 Metadata-Version: 1.0
 Name: ckanext-feedNTI
 Version: 0.1
-Summary: Feed Atom con la estructura de NTI y datos.gob.es
-Home-page: UNKNOWN
+Summary: Feed con la estructura de NTI y datos.gob.es para poder federar con ellos.
+Home-page: http://github.com/opendatacanarias/ckanext-feedNTI
 Author: ggjuanes
 Author-email: ggjuanes@gmail.com
-License: UNKNOWN
+License: mit
 Description: 
             
 Platform: UNKNOWN

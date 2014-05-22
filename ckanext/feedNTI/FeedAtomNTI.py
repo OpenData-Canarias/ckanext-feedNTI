@@ -2,12 +2,11 @@
 # Intenta representar la ficha completa de metadatos y su traduccion a los vocabularios
 #
 #
-# V1:0
+# V1.0
 # - Solo esta adaptada para la federacion segun la plantilla de datos.gob.es
 # - Ademas de los metadatos NTI hay algunos especificados por el federador de datos.gob.es
-# - Los metadatos NTI que no se usan en el federador estan comentados
 
-class FeedNTI:
+class FeedAtomNTI:
 	# nameSpaces del template
 	namespaces = {
 		'atom'	: 'http://www.w3.org/2005/Atom',
@@ -34,6 +33,7 @@ class FeedNTI:
 		'identificador': 'dct:identifier',
 		'nombre': 'title',
 		'descripcion': 'dct:description',
+		'summary': 'summary',
 		'organoPublicador': 'dct:publisher',
 		'tamanoCatalogo': 'dct:extent',
 		'fechaCreacion': 'dct:issued',
@@ -56,7 +56,7 @@ class FeedNTI:
 		'identificador': 'dct:identifier',
 		'nombre': 'title',
 		'descripcion': 'dct:description',
-		'sumary': 'sumary', # Nombre de campo y propiedad no definido en la NTI
+		'summary': 'summary', # Nombre de campo y propiedad no definido en la NTI
 		'tematica': 'dcat:theme',
 		'category': 'category', # Nombre de campo y propiedad no definido en la NTI
 		'etiqueta': 'dcat:keyword',
@@ -70,7 +70,15 @@ class FeedNTI:
 		'organismoPublicador': 'dct:publisher',
 		'condicionesUso': 'dct:license',
 		'coberturaGeografica': 'dct:spatial',
-		'coberturaTemporal': 'dct:temporal',
+		'coberturaTemporal': { 'etiqueta': 'dct:temporal',
+								'intervalo': {
+									'etiqueta': 'time:Interval',
+									'comienzo': 'time:hasBeginning',
+									'final': 'time:hasEnd',
+									'instante': 'time:Instant',
+									'datetime': 'time:inXSDDateTime'
+								}
+							},
 		'vigenciaRecurso': 'dct:valid',
 		'recursoRelacionado': 'dct:references',
 		'normativa': 'dct:conformsTo',
@@ -85,5 +93,5 @@ class FeedNTI:
 		'link': 'fed:link', # Nombre de campo y propiedad no definido en la NTI
 		'formato': 'dcat:mediaType',
 		'tamano': 'dcat:byteSize',
-		'informacionAdiocional': 'dct:relation'
+		'informacionAdicional': 'dct:relation'
 	}

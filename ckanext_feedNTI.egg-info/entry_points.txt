@@ -2,5 +2,5 @@
         [ckan.plugins]
         # Add plugins here, e.g.
         # myplugin=ckanext.feedNTI.plugin:PluginClass
-	feedNTI=ckanext.feedNTI.plugin:RoutingFeed
+	feedNTI=ckanext.feedNTI.plugin:RoutingFeedAtomNTI
     

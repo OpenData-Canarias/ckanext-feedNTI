@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	
+<feed xmlns="http://www.w3.org/2005/Atom" 
+	xmlns:xml="http://www.w3.org/XML/1998/namespace" 
+	xmlns:fed="http://datos.gob.es/federador/ns" 
+	xmlns:time="http://www.w3.org/2006/time"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"	
+	xmlns:foaf="http://xmlns.com/foaf/0.1/" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	http://www.w3.org/2005/Atom 	atom.xsd 
+	http://purl.org/dc/terms/		http://dublincore.org/schemas/xmls/qdc/dcterms.xsd
+	http://datos.gob.es/federador/ns	federador.xsd">
+	
+	<id>@@URI-catalogo@@</id>
+	<title>@@TEXTO-título-idioma1@@</title>
+	<title>@@TEXTO-título-idioma2@@</title>
+	<dct:description>@@TEXTO-descripción-idioma1@@</dct:description>
+	<dct:description>@@TEXTO-descripción-idioma2@@</dct:description>
+	<dct:publisher>@@URI-organismo@@</dct:publisher> <!-- http://datos.gob.es/recurso/sectorpublico/org/Organismo/{ID-MINHAP} -->
+	<dct:extent>@@NUMERO-entero@@</dct:extent>
+	<dct:issued>@@FECHA-creación@@</dct:issued> <!-- Formato YYYY-MM-DDTHH:MM:SS -->
+	<updated>@@FECHA-actualización@@</updated> <!-- Formato YYYY-MM-DDTHH:MM:SS -->
+	<dc:language>@@código-idioma1@@</dc:language> <!-- Código ISO639-1:es|ga|en|ca|... -->
+	<dc:language>@@código-idioma2@@</dc:language>
+	<dct:spatial>@@URI-localización1@@</dct:spatial>
+	<dct:spatial>@@URI-localización2@@</dct:spatial>
+		<!--
+			La cobertura espacial del catálogo.
+			Repetir la propiedad si es necesario haciendo referencia a un recurso del estilo:	http://datos.gob.es/recurso/sector-publico/territorio/pais/Espana	http://datos.gob.es/recurso/sector-publico/territorio/autonomia/Extremadura	http://datos.gob.es/recurso/sector-publico/territorio/provincia/Caceres
+		-->
+	<atom:category term="http://datos.gob.es/kos/sector-publico/sector/"/>
+	<link href="URI-homepage-catálogo@@"/> <!-- Página principal del própio catálogo -->
+	<dct:license>@@URI-terminos-uso@@</dct:license> <!-- Enlace a recurso con los términos de uso generales -->
+		
+	<!--
+		Acontinuación:
+		Especificación de cada uno de los registros contenidos en el catálogo.
+		Repetir propiedad <entry> por cada documento o recurso de información.
+	-->
+
+	<entry>
+		<id>@@URI-dataset1@@</id>
+		<title>@@TEXTO-título-idioma1@@</title>
+		<title>@@TEXTO-título-idioma2@@</title>
+		<summary>@@TEXTO-título-idioma1@@</summary>
+		<summary>@@TEXTO-título-idioma2@@</summary>
+		<category term="@@URI-sector-temático1@@"/>
+		<category term="@@URI-sector-temático2@@"/>
+			<!--
+			  Temática(s) primaria(s) del catálogo. Repetir la propiedad si hay más de una.
+			  Usar el esquema de conceptos normalizado:
+				 http://datos.gob.es/kos/sector-publico/sector/ciencia-tecnologia
+				  http://datos.gob.es/kos/sector-publico/sector/cultura-ocio
+				  http://datos.gob.es/kos/sector-publico/sector/demografia
+				  http://datos.gob.es/kos/sector-publico/sector/deporte
+				  http://datos.gob.es/kos/sector-publico/sector/economia
+				  http://datos.gob.es/kos/sector-publico/sector/educacion
+				  http://datos.gob.es/kos/sector-publico/sector/empleo
+				  http://datos.gob.es/kos/sector-publico/sector/energia
+				  http://datos.gob.es/kos/sector-publico/sector/hacienda
+				  http://datos.gob.es/kos/sector-publico/sector/industria
+				  http://datos.gob.es/kos/sector-publico/sector/legislacion-justicia
+				  http://datos.gob.es/kos/sector-publico/sector/medio-ambiente
+				  http://datos.gob.es/kos/sector-publico/sector/medio-rural
+				  http://datos.gob.es/kos/sector-publico/sector/salud
+				  http://datos.gob.es/kos/sector-publico/sector/sector-publico
+				  http://datos.gob.es/kos/sector-publico/sector/seguridad
+				  http://datos.gob.es/kos/sector-publico/sector/sociedad-bienestar
+				  http://datos.gob.es/kos/sector-publico/sector/transporte
+				  http://datos.gob.es/kos/sector-publico/sector/turismo
+				  http://datos.gob.es/kos/sector-publico/sector/urbanismo-infraestructuras
+				  http://datos.gob.es/kos/sector-publico/sector/vivienda
+			-->
+		<fed:keyword>@@TEXTO-palabra-clave1@@</fed:keyword>
+		<fed:keyword>@@TEXTO-palabra-clave2@@</fed:keyword>
+		<published>@@FECHA-creación@@</published> <!-- Formato YYYY-MM-DDTHH:MM:SS -->
+		<updated>@@FECHA-actualización@@</updated> <!-- Formato YYYY-MM-DDTHH:MM:SS -->
+		<dct:accrualPeriodicity>@@CODIGO-frecuencia@@</dct:accrualPeriodicity>
+		<dc:language>@@código-idioma1@@</dc:language> <!-- Código ISO639-1:es|ga|en|ca|... -->
+		<dc:language>@@código-idioma2@@</dc:language>
+		<dct:publisher>@@URI-organismo@@</dct:publisher> <!-- http://datos.gob.es/recurso/sectorpublico/org/Organismo/{ID-MINHAP} -->
+		<dct:license>@@URI-licencia@@</dct:license>
+		<dct:spatial>@@URI-localización1@@</dct:spatial>
+		<dct:spatial>@@URI-localización2@@</dct:spatial>
+			<!--
+			  La cobertura espacial del catálogo.
+			  Repetir la propiedad si es necesario haciendo referencia a un recurso del estilo:
+				- http://datos.gob.es/recurso/sector-publico/territorio/pais/Espana
+				- http://datos.gob.es/recurso/sector-publico/territorio/autonomia/Extremadura
+				- http://datos.gob.es/recurso/sector-publico/territorio/provincia/Caceres
+			-->
+		<dct:temporal>
+			<time:Interval>
+				<time:hasBeginning>
+					<time:Instant>
+						<time:inXSDDateTime>@@fecha-hora-inicio@@</time:inXSDDateTime>
+					</time:Instant>
+				</time:hasBeginning>
+				<time:hasEnd>
+					<time:Instant>
+						<time:inXSDDateTime>">@@fecha-hora-fin@@</time:inXSDDateTime>
+					</time:Instant>
+				</time:hasEnd>
+			</time:Interval>
+		</dct:temporal>
+		<dct:valid>@@FECHA-validez@@</dct:valid> <!-- Formato YYYY-MM-DDTHH:MM:SS -->
+		<dct:references>@@URI-recurso-relacionado1@@</dct:references> <!-- Una línea por recurso relacionado -->
+		<dct:references>@@URI-recurso-relacionado2@@</dct:references>
+		<dct:conformsTo>@@URI-normativa@@</dct:conformsTo>
+		
+		<fed:distribution>					
+			<fed:link href="@@URL-acceso@@" type="@@tipo-mine-formato@@" length="@@NUMERO-bytes@@" />
+			<dct:identifier>@@URI-distribución1@@</dct:identifier>
+			<dct:tittle>@@TEXTO-nombre-distribucion1@@</dct:tittle>
+			<dct:tittle>@@TEXTO-nombre-distribucion2@@</dct:tittle>
+			<dct:relation>@@URL-documento@@</dct:relation>
+		</fed:distribution>
+		<fed:distribution>					
+			<fed:link href="@@URL-acceso@@" type="@@tipo-mine-formato@@" length="@@NUMERO-bytes@@" />
+			<dct:identifier>@@URI-distribución2@@</dct:identifier>
+			<dct:tittle>@@TEXTO-nombre-distribucion1@@</dct:tittle>
+			<dct:tittle>@@TEXTO-nombre-distribucion2@@</dct:tittle>
+			<dct:relation>@@URL-documento@@</dct:relation>
+		</fed:distribution>
+	</entry>
+	
+	<entry>
+		<id>@@URI-dataset2@@</id>
+		<title>@@TEXTO-título-idioma1@@</title>
+		<title>@@TEXTO-título-idioma2@@</title>
+		<summary>@@TEXTO-título-idioma1@@</summary>
+		<summary>@@TEXTO-título-idioma2@@</summary>
+		<category term="@@URI-sector-temático1@@"/>
+		<category term="@@URI-sector-temático2@@"/>
+		<fed:keyword>@@TEXTO-palabra-clave1@@</fed:keyword>
+		<fed:keyword>@@TEXTO-palabra-clave2@@</fed:keyword>
+		<published>@@FECHA-creación@@</published> <!-- Formato YYYY-MM-DDTHH:MM:SS -->
+		<updated>@@FECHA-actualización@@</updated> <!-- Formato YYYY-MM-DDTHH:MM:SS -->
+		<dct:accrualPeriodicity>@@CODIGO-frecuencia@@</dct:accrualPeriodicity>
+		<dc:language>@@código-idioma1@@</dc:language> <!-- Código ISO639-1:es|ga|en|ca|... -->
+		<dc:language>@@código-idioma2@@</dc:language>
+		<dct:publisher>@@URI-organismo@@</dct:publisher> <!-- http://datos.gob.es/recurso/sectorpublico/org/Organismo/{ID-MINHAP} -->
+		<dct:license>@@URI-licencia@@</dct:license>
+		<dct:spatial>@@URI-localización1@@</dct:spatial>
+		<dct:spatial>@@URI-localización2@@</dct:spatial>
+		<dct:temporal>
+			<time:Interval>
+				<time:hasBeginning>
+					<time:Instant>
+						<time:inXSDDateTime>@@fecha-hora-inicio@@</time:inXSDDateTime>
+					</time:Instant>
+				</time:hasBeginning>
+				<time:hasEnd>
+					<time:Instant>
+						<time:inXSDDateTime>">@@fecha-hora-fin@@</time:inXSDDateTime>
+					</time:Instant>
+				</time:hasEnd>
+			</time:Interval>
+		</dct:temporal>
+		<dct:valid>@@FECHA-valided@@</dct:valid> <!-- Formato YYYY-MM-DDTHH:MM:SS -->
+		<dct:references>@@URI-recurso-relacionado1@@</dct:references> <!-- Una línea por recurso relacionado -->
+		<dct:references>@@URI-recurso-relacionado2@@</dct:references>
+		<dct:conformsTo>@@URI-normativa@@</dct:conformsTo>
+		
+		<fed:distribution>					
+			<fed:link href="@@URL-acceso@@" type="@@tipo-mine-formato@@" length="@@NUMERO-bytes@@" />
+			<dct:identifier>@@URI-distribución1@@</dct:identifier>
+			<dct:title>@@TEXTO-nombre-distribucion1@@</dct:title>
+			<dct:title>@@TEXTO-nombre-distribucion2@@</dct:title>
+			<dct:relation>@@URL-documento@@</dct:relation>
+		</fed:distribution>
+		<fed:distribution>					
+			<fed:link href="@@URL-acceso@@" type="@@tipo-mine-formato@@" length="@@NUMERO-bytes@@" />
+			<dct:identifier>@@URI-distribución2@@</dct:identifier>
+			<dct:title>@@TEXTO-nombre-distribucion1@@</dct:title>
+			<dct:title>@@TEXTO-nombre-distribucion2@@</dct:title>
+			<dct:relation>@@URL-documento@@</dct:relation>
+		</fed:distribution>
+	</entry>
+</feed>
+

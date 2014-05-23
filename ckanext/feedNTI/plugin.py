@@ -6,8 +6,8 @@ import pylons.config as config
 # Clase encargada de realizar el routing en CKAN.
 # 
 # V1.0:
-# - Permite una ruta por defecto que será /feeds/datasetNTI.atom'
-# - Permite configurar la ruta del feed mediante un parametro de configuración de CKAN (ckan.feedAtomNTI.url)
+# - Permite una ruta por defecto que serï¿½ /feeds/datasetNTI.atom'
+# - Permite configurar la ruta del feed mediante un parametro de configuraciï¿½n de CKAN (ckan.feedAtomNTI.url)
 
 class RoutingFeedAtomNTI(plugins.SingletonPlugin):
 
@@ -21,6 +21,6 @@ class RoutingFeedAtomNTI(plugins.SingletonPlugin):
 	
 	def before_map(self, map):
 		map.connect(self.path,
-                	controller='ckanext.feedNTI.controller:FeedAtomNTIController',
+                	controller='ckanext.feedNTI.controller:NTIAtom1FeedController',
 			action='getCatalog')
 		return map

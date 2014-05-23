@@ -272,10 +272,10 @@ class NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
                     if dist['tamano'] is None:
                         dist['tamano'] = ''
                     handler.addQuickElement(self.feedNTITemplate.distribution['link'], "", {u"rel": u"enclosure", u"href": dist['link'], u"type": dist['formato'], u"length": dist['tamano']})
-                if dist['formato'] is not None:
-                    handler.addQuickElement(self.feedNTITemplate.distribution['formato'], dist['formato'])
-                if dist['tamano'] is not None:
-                    handler.addQuickElement(self.feedNTITemplate.distribution['tamano'], dist['tamano'])
+                #if dist['formato'] is not None:
+                #    handler.addQuickElement(self.feedNTITemplate.distribution['formato'], dist['formato'])
+                #if dist['tamano'] is not None:
+                #    handler.addQuickElement(self.feedNTITemplate.distribution['tamano'], dist['tamano'])
                 if dist['informacionAdicional'] is not None:
                     handler.addQuickElement(self.feedNTITemplate.distribution['informacionAdicional'], dist['informacionAdicional'])
                 handler.endElement(self.feedNTITemplate.entry['distribucion'])

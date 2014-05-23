@@ -120,14 +120,15 @@ class NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
     def add_item(self, nombre, summary, id, category=None,
                     keyword=None, published=None, updated=None, frecuenciaActualizacion=None,
                     idioma=None, organismoPublicador=None, condicionesUso=None,
-                    coberturaGeografica=None, coberturaTemporal=None, vigenciaRecurso=None,
+                    coberturaGeografica=None, coberturaTemporalComienzo=None, coberturaTemporalFinal=None, vigenciaRecurso=None,
                     recursoRelacionado=None, normativa=None, distribucion = [], **kwargs):
         
-        coberturaTemporalComienzo = ''
-        coberturaTemporalFinal = ''
-        if coberturaTemporal is not None:
-            coberturaTemporalComienzo = coberturaTemporal['comienzo']
-            coberturaTemporalFinal = coberturaTemporal['final']
+        coberturaTemporal = None
+        if (coberturaTemporalComienzo is not None) or (coberturaTemporalFinal is not None):
+            coberturaTemporal = {
+                'comienzo': coberturaTemporalComienzo,
+                'final': coberturaTemporalFinal
+            }
         
         ntiItem = {
             'id' : id,
@@ -148,10 +149,7 @@ class NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
             'organismoPublicador': organismoPublicador,
             'condicionesUso': condicionesUso,
             'coberturaGeografica': coberturaGeografica,
-            'coberturaTemporal': {
-                    'comienzo': coberturaTemporalComienzo,
-                    'final': coberturaTemporalFinal
-                },
+            'coberturaTemporal': coberturaTemporal,
             'vigenciaRecurso': vigenciaRecurso,
             'recursoRelacionado': recursoRelacionado,
             'normativa': normativa,
@@ -159,12 +157,12 @@ class NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
         }
         
         for dist in distribucion:
-            dist_link = ''
-            dist_formato= ''
-            dist_identificador = ''
-            dist_nombre = ''
-            dist_tamano= ''
-            dist_informacionAdicional = ''
+            dist_link = None
+            dist_formato= None
+            dist_identificador = None
+            dist_nombre = None
+            dist_tamano= None
+            dist_informacionAdicional = None
             if dist['link'] is not None:
                 dist_link = dist['link']
             if dist['formato'] is not None:
@@ -267,6 +265,10 @@ class NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
                 #if dist['urlAcceso'] is not None:
                 #    handler.addQuickElement(self.feedNTITemplate.distribution['urlAcceso'], dist['urlAcceso'])
                 if dist['link'] is not None:
+                    if dist['formato'] is None:
+                        dist['formato']= ''
+                    if dist['tamano'] is None:
+                        dist['tamano'] = ''
                     handler.addQuickElement(self.feedNTITemplate.distribution['link'], "", {u"rel": u"enclosure", u"href": dist['link'], u"type": dist['formato'], u"length": dist['tamano']})
                 if dist['formato'] is not None:
                     handler.addQuickElement(self.feedNTITemplate.distribution['formato'], dist['formato'])

@@ -117,8 +117,8 @@ class NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
         return ntiDistribution
         
     # Se encarga de a�adir al array cada uno de los datasets (entry)
-    def add_item(self, nombre, summary, id, category=None,
-                    keyword=None, published=None, updated=None, frecuenciaActualizacion=None,
+    def add_item(self, nombre, summary, id, category=[],
+                    keyword=[], published=None, updated=None, frecuenciaActualizacion=None,
                     idioma=None, organismoPublicador=None, condicionesUso=None,
                     coberturaGeografica=None, coberturaTemporalComienzo=None, coberturaTemporalFinal=None, vigenciaRecurso=None,
                     recursoRelacionado=None, normativa=None, distribucion = [], **kwargs):
@@ -207,12 +207,14 @@ class NTIAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
         # que no est�n definidas en la plantilla Atom.
         #if item['tematica'] is not None:# No implementado en la plantilla NTI
         #    handler.addQuickElement(self.feedNTITemplate.entry['tematica'], item['tematica'])
-        if item['category'] is not None:
-            handler.addQuickElement(self.feedNTITemplate.entry['category'], item['category'])
+        if item['category'] is not []:
+            for category in item['category']:
+                handler.addQuickElement(self.feedNTITemplate.entry['category'], category)
         #if item['etiqueta'] is not None:
         #    handler.addQuickElement(self.feedNTITemplate.entry['etiqueta'], item['etiqueta'])
-        if item['keyword'] is not None:
-            handler.addQuickElement(self.feedNTITemplate.entry['keyword'], item['keyword'])
+        if item['keyword'] is not []:
+            for keyword in item['keyword']:
+                handler.addQuickElement(self.feedNTITemplate.entry['keyword'], keyword)
         if item['fechaCreacion'] is not None:
             handler.addQuickElement(self.feedNTITemplate.entry['fechaCreacion'], item['fechaCreacion'])
         if item['published'] is not None:

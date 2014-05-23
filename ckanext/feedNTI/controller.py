@@ -27,10 +27,13 @@ def _package_search():
 	# Ordenar los resultados por fecha de modificacion
 	data_dict = {} 
 	data_dict['sort'] = 'metadata_modified desc'
-	data_dict['rows'] = '50'	# Se limitan los resultados a 50, ojo con esto
 
 	# Realizar la consulta
 	query = logic.get_action('package_search')(context, data_dict.copy())
+	
+	if query['count'] > 10:
+		data_dict['rows'] = query['count']	# Se limitan los resultados a la cantidad total
+		query = logic.get_action('package_search')(context, data_dict.copy())
 	
 	return query['count'], query['results']
 
@@ -85,17 +88,17 @@ class NTIAtom1FeedController(base.BaseController):
 		for pkg in datasets:
 			# Categoria / Grupo principal
 			# Solo se obtiene la primera cateogria (grupo)
-			group = None
-			groupArray = pkg.get('groups',None)
-			if (groupArray is not None)	and (len(groupArray) > 0):
-				group = groupArray[0]['display_name']
+			group = []
+			groupArray = pkg.get('groups',[])
+			for g in groupArray:
+				group.append(g['display_name'])
 				
 			# Tag / Etiqueta principal
 			# Solo se muestra la primera etiqueta
-			tag= None
+			tag = []
 			tagArray = pkg.get('tags',None)
-			if (tagArray is not None) and (len(tagArray) > 0):
-				tag = tagArray[0]['display_name']
+			for t in tagArray:
+				tag.append(t['display_name'])
 				
 			# Idioma / Cobertura Geografica / Cobertura Temporal / ...
 			# Son campos definidos como extras en CKAN
@@ -140,7 +143,7 @@ class NTIAtom1FeedController(base.BaseController):
 				resource = {
 					'link': ckanResource['url'],
 					'formato': ckanResource['mimetype'],
-					'identificador': ckanResource['id'],
+					'identificador': feedData['id'] + "/dataset/" + pkg.get('name',None) + "/resource/" + ckanResource['id'],
 					'nombre': ckanResource['name'],
 					'tamano': ckanResource['size'],
 					# CKAN no implementa el metadato para información adicional, se genera la url para el recurso en ckan o se deja vacio
@@ -153,7 +156,7 @@ class NTIAtom1FeedController(base.BaseController):
 			feed.add_item(
 				nombre = pkg.get('title',None),
 				summary = pkg.get('notes',None),
-				id = g.site_url + "/dataset/" + pkg.get('name',None),
+				id = feedData['id'] + "/dataset/" + pkg.get('name',None),
 				category = group,
 				keyword = tag,
 				published = pkg.get('metadata_created',None),
